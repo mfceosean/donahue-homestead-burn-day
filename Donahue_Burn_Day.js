@@ -1,4 +1,4 @@
-// DONAHUE_RELEASE_VERSION: 4
+// DONAHUE_RELEASE_VERSION: 5
 // Donahue Homestead Burn Day • install this same file in Scriptable and GitHub.
 // Increase the version number above each time you publish changed code.
 // Status still comes directly from the official county and CAL FIRE pages.
@@ -83,7 +83,7 @@ function saveState() {
 }
 // WIDGET_BODY_START
 async function runWidget() {
-// El Dorado County Burn Day • v2.2 • Created by Donahue Homestead
+// EDC Burn Status • release 5 • Created by Donahue Homestead
 // Paste the whole script into Scriptable. Run once to allow location access.
 // Add a small, medium or large Scriptable widget and select this script.
 // Location emphasizes your area; coverage ALWAYS stays El Dorado County.
@@ -217,8 +217,8 @@ function paintBackground() {
   fill("7AA9BF",.055); ctx.fillEllipse(box(W*.60,-W*.28,W*.75,W*.75));
 }
 function header() {
-  label("Burn Day",32,22,300,60,large?48:42,C.ink,true);
-  label(place.label,355,32,333,34,21,C.muted,false,"right");
+  label("EDC Burn Status",32,22,342,52,large?36:34,C.ink,true);
+  label(place.label,390,32,298,34,18,C.muted,false,"right");
   label("EL DORADO COUNTY • OUTDOOR BURNING",32,79,490,26,17,C.faint,true);
   label(date,510,79,178,26,18,C.muted,false,"right");
 }
@@ -250,10 +250,10 @@ function areaCards(y,h,big) {
   }
 }
 function paintSmall() {
-  label("Burn Day",23,17,220,49,38,C.ink,true);
-  label(date,208,32,129,28,16,C.muted,false,"right");
+  label("EDC Burn Status",23,17,314,42,32,C.ink,true);
+  label(date,208,91,129,24,16,C.muted,false,"right");
   label(place.label,24,68,312,24,16,C.muted);
-  label("EL DORADO COUNTY",24,93,312,20,13,C.faint,true);
+  label("EL DORADO COUNTY",24,93,176,20,13,C.faint,true);
   if (focus) {
     const other=focus==="west"?"tahoe":"west", s=states[focus], hex=color(s.status);
     rounded(22,121,316,112,17,"FFFFFF",.06);

@@ -50,7 +50,7 @@ Use a single script for this widget. You do not need to create a separate update
 1. In the script editor, tap the **▶ play/run** button.
 2. If Scriptable asks for location access, allow it if you want the widget to emphasize your local area. Location is optional: denying it keeps both areas equally sized and does not prevent the burn status checks.
 3. Wait for the preview to appear. The default in-app preview is **medium**.
-4. Check that you see **Burn Day**, the date, and the two areas: **West Slope** and **Tahoe Basin**.
+4. Check that you see **EDC Burn Status**, the date, and the two areas: **West Slope** and **Tahoe Basin**.
 5. Close the preview and tap **Done** to leave the editor.
 
 **Location emphasizes your area.** Within El Dorado County, the local area gets a larger card labeled **YOUR AREA** and the other area remains visible in a smaller card. Without a usable location, both cards stay equally sized. “Tahoe Basin” means the El Dorado County portion, not the entire basin. The widget continues to display those same two areas when used elsewhere.
@@ -113,6 +113,8 @@ Official sources:
 ## Automatic updates and refresh timing
 
 After installation, the script checks [the public release file](https://raw.githubusercontent.com/mfceosean/donahue-homestead-burn-day/main/Donahue_Burn_Day.js) about every **six hours when iOS runs it**. Most widget updates require no further copying or setup.
+
+**Release 5 (October 7, 2026):** the top heading is **EDC Burn Status** in small, medium, and large widgets. Existing installations receive this heading automatically at their next successful code update check; no reinstall or script rename is needed. EDC means El Dorado County. The longer heading has adjusted spacing in each layout.
 
 Burn status is fetched when the script runs. The widget requests another refresh after about **30 minutes**, but **iOS determines the actual refresh time**. Neither timer guarantees an immediate Home Screen change.
 
