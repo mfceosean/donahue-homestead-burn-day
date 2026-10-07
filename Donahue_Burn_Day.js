@@ -1,4 +1,4 @@
-// DONAHUE_RELEASE_VERSION: 1
+// DONAHUE_RELEASE_VERSION: 2
 // Donahue Homestead Burn Day • install this same file in Scriptable and GitHub.
 // Increase the version number above each time you publish changed code.
 // Status still comes directly from the official county and CAL FIRE pages.
@@ -210,7 +210,7 @@ function paintBackground() {
   fill("7AA9BF",.055); ctx.fillEllipse(box(W*.60,-W*.28,W*.75,W*.75));
 }
 function header() {
-  label("Burn Day",32,22,300,60,large?48:42,C.ink,true);
+  label("TEST MODE",32,22,300,60,large?48:42,C.ink,true);
   label(place.label,355,32,333,34,21,C.muted,false,"right");
   label("EL DORADO COUNTY • OUTDOOR BURNING",32,79,490,26,17,C.faint,true);
   label(date,510,79,178,26,18,C.muted,false,"right");
@@ -232,7 +232,7 @@ function card(key,x,y,w,h,big) {
   }
 }
 function paintSmall() {
-  label("Burn Day",23,17,220,49,38,C.ink,true);
+  label("TEST MODE",23,17,220,49,38,C.ink,true);
   label(date,208,32,129,28,16,C.muted,false,"right");
   label(place.label,24,68,312,24,16,C.muted);
   label("EL DORADO COUNTY",24,93,312,20,13,C.faint,true);
