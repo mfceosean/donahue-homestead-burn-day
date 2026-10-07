@@ -1,28 +1,132 @@
 # Donahue Homestead Burn Day
 
-A standalone [Scriptable](https://scriptable.app/) Home Screen widget for the El Dorado County West Slope and the **El Dorado County portion** of the Tahoe Basin. No MiniNAS, account, API key, or external artwork is needed.
+A standalone [Scriptable](https://scriptable.app/) Home Screen widget for the El Dorado County West Slope and the **El Dorado County portion** of the Tahoe Basin. Small, medium, and large widgets are supported.
 
-## Install
+No MiniNAS, GitHub account, API key, or external artwork is needed. You do not need programming experience: install Scriptable, copy the script, and select it in a Home Screen widget.
 
-1. Install Scriptable on your iPhone or iPad.
-2. Open [Donahue_Burn_Day.js](Donahue_Burn_Day.js), tap **Raw**, and copy the entire file.
-3. In Scriptable, create a new script, name it **Donahue Burn Day**, paste the code, and run it once. Allow location access if you want your city shown in the header. Location does not change the two coverage areas.
-4. Add a Scriptable widget to your Home Screen. Edit it and choose **Donahue Burn Day** as the script. Small, medium, and large widgets are supported.
+## Download Scriptable and check compatibility
 
-Tapping the widget opens the county's official burn day page. Check the date and applicable permits and local rules before burning.
+| Device | Link | Compatibility |
+| --- | --- | --- |
+| **iPhone / iPad (iOS / iPadOS)** | [Download Scriptable from the App Store](https://apps.apple.com/us/app/scriptable/id1405459188) | Supported installation path for this widget. |
+| **Android** | [Third-party Scriptable listing](https://android-apk.net/app/scriptable/1405459188/) | Unverified listing; **this widget does not currently support Android**. |
 
-## Colors
+Scriptable's [official website](https://scriptable.app/) and [documentation](https://docs.scriptable.app/) describe an iOS app. The Android URL above is included for reference, but its listing does not establish that an official, compatible Android version exists. This script uses Scriptable's native iOS APIs, so the iPhone/iPad instructions below cannot be used to install it on Android.
 
-- **Green:** the county's posting and CAL FIRE's El Dorado County entry both allow burning.
-- **Red:** either source confirms a prohibition.
-- **White:** the available postings do not confirm a clear status.
+Android users can check the [official El Dorado County burn day page](https://www.eldoradocounty.ca.gov/Services/Burn-Day) in their browser.
 
-The CAL FIRE entry applies to State Responsibility Areas; other local restrictions may also apply.
+## Install on iPhone or iPad
 
-## Automatic updates
+Allow a few minutes for setup. Have an internet connection available for the first run and for current burn status checks.
 
-The installed script checks [the public release file](https://raw.githubusercontent.com/mfceosean/donahue-homestead-burn-day/main/Donahue_Burn_Day.js) about every six hours **when iOS runs the widget**. iOS decides the actual refresh time. A last working update is cached for offline use; the original installed widget remains available as a fallback.
+### 1. Install and open Scriptable
 
-To publish an updated widget, edit `Donahue_Burn_Day.js`, increment the integer on its first line (`DONAHUE_RELEASE_VERSION`), and commit to `main`. Keep the `// WIDGET_BODY_START` marker and `runWidget` function. Updates to the widget body take effect on installed devices at their next update check. A change to the installer/updater code above that marker would require people to replace their installed script.
+1. On the iPhone or iPad where you want the widget, open the [Scriptable App Store link](https://apps.apple.com/us/app/scriptable/id1405459188).
+2. Tap **Get** (or the cloud download button if you previously installed it).
+3. Open **Scriptable** once after installation.
+
+### 2. Copy the complete widget code
+
+1. Open [the widget's raw code](https://raw.githubusercontent.com/mfceosean/donahue-homestead-burn-day/main/Donahue_Burn_Day.js) in Safari. This link displays the JavaScript without GitHub's surrounding page.
+2. Touch and hold the code, choose **Select All**, then **Copy**. You may need to expand the text-selection menu to find **Select All**.
+3. Copy the **entire file**, including its first line (`// DONAHUE_RELEASE_VERSION: ...`) and its final closing brace.
+
+If Safari downloads the file instead of showing its contents, open [Donahue_Burn_Day.js on GitHub](https://github.com/mfceosean/donahue-homestead-burn-day/blob/main/Donahue_Burn_Day.js), choose **Raw**, and copy the complete code. GitHub's Raw control may appear as **View raw** or in the file menu on a smaller screen.
+
+### 3. Create and name the script
+
+1. Return to **Scriptable**.
+2. Tap the **+** button to create a new script.
+3. Tap inside the empty code editor and choose **Paste**.
+4. Tap the script's name at the top of the editor and rename it **Donahue Burn Day**. If your version shows a settings control instead, open the script settings and change its name there.
+5. Confirm that the editor contains the full code, rather than just a web address.
+
+Use a single script for this widget. You do not need to create a separate updater script.
+
+### 4. Run it once and check the preview
+
+1. In the script editor, tap the **▶ play/run** button.
+2. If Scriptable asks for location access, allow it if you want your city displayed in the widget header. Location is optional: denying it does not prevent the burn status checks.
+3. Wait for the preview to appear. The default in-app preview is **medium**.
+4. Check that you see **Burn Day**, the date, and the two areas: **West Slope** and **Tahoe Basin**.
+5. Close the preview and tap **Done** to leave the editor.
+
+**Location changes only the header.** The widget always checks the same two El Dorado County areas, even if you run it somewhere else. “Tahoe Basin” means the El Dorado County portion, not the entire basin.
+
+A white **UNCONFIRMED** status can be a valid result. It means the available official postings could not confirm the status; it does not necessarily mean installation failed.
+
+### 5. Add the widget to your Home Screen
+
+1. Go to your iPhone or iPad **Home Screen**.
+2. Touch and hold an empty area until the app icons jiggle.
+3. Tap **Edit → Add Widget**, or the **+** button, depending on your iOS/iPadOS version.
+4. Search for **Scriptable** and select it.
+5. Swipe through the widget sizes. Choose **small**, **medium**, or **large**, then tap **Add Widget**.
+6. Tap **Done**.
+
+| Size | What you get |
+| --- | --- |
+| **Small** | Compact status for both areas. |
+| **Medium** | Two side-by-side status cards with brief explanations. |
+| **Large** | More detail, including separate county and CAL FIRE source results. |
+
+The Home Screen size you choose controls the installed widget's layout. The medium preview in Scriptable does not limit you to a medium Home Screen widget.
+
+### 6. Select the Burn Day script
+
+1. Touch and hold the new **Scriptable widget**.
+2. Tap **Edit Widget**.
+3. Tap the **Script** field and choose **Donahue Burn Day**.
+4. Leave **Parameter** empty; this widget does not require one.
+5. Tap outside the settings panel to finish.
+6. Allow a little time for the widget to load.
+
+**You're ready:** the Home Screen widget should display the same two areas as the preview. Tapping it opens the county's official burn day page.
+
+## Read the burn status
+
+| Color | Display | Meaning |
+| --- | --- | --- |
+| **Green** | **BURN DAY** | The county's posting and CAL FIRE's El Dorado County entry both allow burning. |
+| **Red** | **NO BURN** | Either source confirms a prohibition. |
+| **White** | **UNCONFIRMED** | The available postings do not confirm a clear status. |
+
+The CAL FIRE entry applies to **State Responsibility Areas (SRA)**. Check the visible date, official postings, applicable permits, and local rules before burning. An unconfirmed result is not permission to burn.
+
+Official sources:
+- [El Dorado County burn day status](https://www.eldoradocounty.ca.gov/Services/Burn-Day)
+- [CAL FIRE current burn status](https://burnpermit.fire.ca.gov/current-burn-status/)
+
+## Automatic updates and refresh timing
+
+After installation, the script checks [the public release file](https://raw.githubusercontent.com/mfceosean/donahue-homestead-burn-day/main/Donahue_Burn_Day.js) about every **six hours when iOS runs it**. Most widget updates require no further copying or setup.
+
+Burn status is fetched when the script runs. The widget requests another refresh after about **30 minutes**, but **iOS determines the actual refresh time**. Neither timer guarantees an immediate Home Screen change.
+
+A last working widget-code update is cached locally, and the installed code remains available as a fallback. This protects against failed code downloads; it does **not** guarantee current burn status without access to the official sources.
+
+To check the current result manually, open Scriptable and run **Donahue Burn Day** again. This fetches burn status and checks for a code update if the update interval has elapsed. The Home Screen may still take time to refresh.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| **Scriptable is missing from the widget picker** | Open Scriptable once, then return to the Home Screen and try adding the widget again. |
+| **The widget asks you to select a script or stays on a placeholder** | Touch and hold it → **Edit Widget** → **Script** → **Donahue Burn Day**. |
+| **The script is missing from the selection list** | Return to Scriptable, confirm the script is saved with the expected name, run it once, and retry **Edit Widget**. |
+| **Running the script shows a JavaScript error** | Replace the editor contents with the complete raw file. Do not paste the GitHub page, a URL, or only part of the code. Run it again. |
+| **The header says LOCATION UNAVAILABLE** | Burn status checks still work. If you want your city shown, check **Settings → Privacy & Security → Location Services → Scriptable**, allow location access, and run the script again. |
+| **Status is white / UNCONFIRMED** | Check your internet connection and tap through to the official sources. Unavailable, stale, or unexpected source data can produce this result. |
+| **The date or checked time looks old** | Run the script in Scriptable with an internet connection. Give iOS time to refresh the Home Screen widget, and use the official page for an immediate status check. |
+| **A newly published design change has not appeared** | Code checks occur about every six hours when iOS runs the script. Run it again after that interval; if an update check fails, it can retry after about 30 minutes on a later run. |
+| **You want a different size** | Add a new Scriptable widget in the desired size and select the same **Donahue Burn Day** script. Remove the old widget if desired. |
+
+If you need to reinstall the code, paste the latest complete file into the **existing Donahue Burn Day script** and run it again. Keeping the same script avoids having to select a new one in your widget settings.
+
+## For maintainers: publishing widget updates
+
+Edit `Donahue_Burn_Day.js`, increment the integer on its first line (`DONAHUE_RELEASE_VERSION`), and commit to `main`. Keep the `// WIDGET_BODY_START` marker and `runWidget` function.
+
+Updates to the widget body take effect on installed devices at their next update check. Changes to the installer/updater code above that marker require users to replace their installed script. Keep the public repository path and branch unchanged so installed copies can continue checking for updates.
 
 Created by Donahue Homestead.
