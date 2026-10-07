@@ -4,15 +4,7 @@ A standalone [Scriptable](https://scriptable.app/) Home Screen widget for the El
 
 No MiniNAS, GitHub account, API key, or external artwork is needed. You do not need programming experience: install Scriptable, copy the script, and select it in a Home Screen widget.
 
-## Disclaimer and limitation of liability
-
-**This widget is an informational convenience only. It is not an official burn authorization, permit, emergency alert system, or substitute for checking with the responsible authorities. A green “BURN DAY” display does not, by itself, mean you may legally or safely burn.**
-
-Burn statuses, dates, location-based area selection, and other displayed information may be inaccurate, incomplete, outdated, delayed, or unavailable because of source errors, website changes, network failures, device refresh limits, GPS errors, software defects, or other causes. Donahue Homestead does not control official source data or guarantee that changes will appear immediately.
-
-Before every burn, independently verify the current status for your actual burn location through the [official county page](https://www.eldoradocounty.ca.gov/Services/Burn-Day), [CAL FIRE](https://burnpermit.fire.ca.gov/current-burn-status/), and applicable local authorities. You are responsible for required permits, restrictions, weather conditions, safe practices, and compliance with all applicable rules.
-
-**The widget is provided “AS IS” and “AS AVAILABLE,” without warranties to the fullest extent permitted by law.** Use is at your own risk. To the fullest extent permitted by applicable law, Donahue Homestead and its owners, developers, maintainers, and contributors disclaim liability for claims, losses, injuries, property damage, fines, costs, or other damages arising from use of, inability to use, or reliance on the widget or its data. Nothing in this disclaimer excludes liability or limits rights that cannot legally be excluded or limited.
+Please read the [disclaimer and limitation of liability](#disclaimer-and-limitation-of-liability) before using the widget.
 
 ## Download Scriptable and check compatibility
 
@@ -152,3 +144,12 @@ Updates to the widget body take effect on installed devices at their next update
 
 Created by Donahue Homestead.
 
+## Disclaimer and limitation of liability
+
+**This widget is an informational convenience only. It is not an official burn authorization, permit, emergency alert system, or substitute for checking with the responsible authorities. A green “BURN DAY” display does not, by itself, mean you may legally or safely burn.**
+
+Burn statuses, dates, location-based area selection, and other displayed information may be inaccurate, incomplete, outdated, delayed, or unavailable because of source errors, website changes, network failures, device refresh limits, GPS errors, software defects, or other causes. Donahue Homestead does not control official source data or guarantee that changes will appear immediately.
+
+Before every burn, independently verify the current status for your actual burn location through the [official county page](https://www.eldoradocounty.ca.gov/Services/Burn-Day), [CAL FIRE](https://burnpermit.fire.ca.gov/current-burn-status/), and applicable local authorities. You are responsible for required permits, restrictions, weather conditions, safe practices, and compliance with all applicable rules.
+
+**The widget is provided “AS IS” and “AS AVAILABLE,” without warranties to the fullest extent permitted by law.** Use is at your own risk. To the fullest extent permitted by applicable law, Donahue Homestead and its owners, developers, maintainers, and contributors disclaim liability for claims, losses, injuries, property damage, fines, costs, or other damages arising from use of, inability to use, or reliance on the widget or its data. Nothing in this disclaimer excludes liability or limits rights that cannot legally be excluded or limited.
