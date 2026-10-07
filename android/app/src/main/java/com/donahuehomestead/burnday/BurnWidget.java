@@ -46,7 +46,6 @@ public class BurnWidget extends AppWidgetProvider {
                 .putLong("time",System.currentTimeMillis()).apply();
         }
         JobInfo job=new JobInfo.Builder(501,new ComponentName(context,BurnJob.class))
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             .setOverrideDeadline(0)
             .build();
         ((JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE)).schedule(job);
