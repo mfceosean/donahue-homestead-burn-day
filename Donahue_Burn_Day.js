@@ -1,4 +1,4 @@
-// DONAHUE_RELEASE_VERSION: 5
+// DONAHUE_RELEASE_VERSION: 6
 // Donahue Homestead Burn Day • install this same file in Scriptable and GitHub.
 // Increase the version number above each time you publish changed code.
 // Status still comes directly from the official county and CAL FIRE pages.
@@ -83,7 +83,7 @@ function saveState() {
 }
 // WIDGET_BODY_START
 async function runWidget() {
-// EDC Burn Status • release 5 • Created by Donahue Homestead
+// EDC Burn Status • release 6 • Created by Donahue Homestead
 // Paste the whole script into Scriptable. Run once to allow location access.
 // Add a small, medium or large Scriptable widget and select this script.
 // Location emphasizes your area; coverage ALWAYS stays El Dorado County.
@@ -106,6 +106,7 @@ const FIRE_URL = "https://burnpermit.fire.ca.gov/current-burn-status/";
 const ZONE = "America/Los_Angeles";
 const now = new Date();
 const today = dayKey(now);
+let nextStatusCheck = now.getTime() + 30 * 60 * 1000;
 const family = config.runsInWidget ? config.widgetFamily : PREVIEW_SIZE;
 const small = family === "small";
 const large = family === "large" || family === "extraLarge";
@@ -142,7 +143,7 @@ const widget = new ListWidget();
 widget.setPadding(0, 0, 0, 0);
 widget.backgroundImage = ctx.getImage();
 widget.url = COUNTY_URL;
-widget.refreshAfterDate = new Date(now.getTime() + 30 * 60 * 1000);
+widget.refreshAfterDate = new Date(nextStatusCheck);
 Script.setWidget(widget);
 if (!config.runsInWidget) {
   if (small) await widget.presentSmall();
@@ -300,7 +301,7 @@ function paintLarge() {
   for (const [i,key] of ["west","tahoe"].entries()) {
     const cs=county[key]?.status||"UNKNOWN", x=277+i*205;
     label(cs==="YES"?"Burn day":cs==="NO"?"No burn":"Unconfirmed",x,560,180,30,21,color(cs),true);
-    label(fire==="OPEN"?"Permits apply":fire==="SUSPENDED"?"Suspended":"Unconfirmed",x,604,180,30,21,color(fire==="OPEN"?"YES":fire==="SUSPENDED"?"NO":"UNKNOWN"),true);
+    label(fire==="OPEN"?"Permits apply":fire==="SUSPENDED"?"Suspended":fire==="PENDING"?"Not yet open":"Unconfirmed",x,604,180,30,21,color(fire==="OPEN"?"YES":(fire==="SUSPENDED"||fire==="PENDING")?"NO":"UNKNOWN"),true);
   }
   label("Checked "+stamp,32,670,656,30,22,C.muted);
   label("Tap for official status • permits / local rules apply",32,702,656,25,17,C.faint);
@@ -362,6 +363,7 @@ function withTimeout(promise,ms,fallback) {
 function combineSources(county, fire) {
   // Confirmed NO wins over a conflicting YES or an unavailable source.
   if (county.status === "NO") return county;
+  if (fire === "PENDING") return { status: "NO", detail: "CAL FIRE start time not reached" };
   if (fire === "SUSPENDED") return { status: "NO", detail: "CAL FIRE: suspended (SRA)" };
   if (county.status === "YES" && fire === "OPEN") return { status: "YES", detail: "Both sources allow burning" };
   return { status: "UNKNOWN", detail: county.status === "UNKNOWN" ? county.detail : "CAL FIRE check unavailable" };
@@ -412,6 +414,28 @@ function dates(value) {
   return [...new Set(found)];
 }
 
+// Compare official effective times in Pacific local time, independently of device timezone.
+// null means no time was posted; -1 means an explicit time could not be verified.
+function startMinute(value) {
+  const matches = [...value.matchAll(/\b(\d{1,2})(?::(\d{2}))?\s*(A\.?M\.?|P\.?M\.?)(?![A-Za-z])/gi)];
+  if (!matches.length) return /\b(?:starting|effective)\b.{0,30}\bat\b/i.test(value) ? -1 : null;
+  const minutes = matches.map(m => {
+    const h = +m[1], min = +(m[2] || 0);
+    return h >= 1 && h <= 12 && min < 60 ? (h % 12) * 60 + (/^P/i.test(m[3]) ? 720 : 0) + min : -1;
+  });
+  return minutes.every(m => m === minutes[0]) ? minutes[0] : -1;
+}
+function beforeStart(day, minute) {
+  if (day !== today || minute === null || minute < 0) return false;
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: ZONE, hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).formatToParts(now);
+  const get = type => +parts.find(p => p.type === type).value;
+  const seconds = get("hour") * 3600 + get("minute") * 60 + get("second");
+  const remaining = minute * 60 - seconds;
+  if (remaining <= 0) return false;
+  nextStatusCheck = Math.min(nextStatusCheck, now.getTime() + remaining * 1000);
+  return true;
+}
+
 function parseCounty(html, targetDay) {
   const records = { west: [], tahoe: [] };
   const clean = html.replace(/<!--[\s\S]*?-->/g, " ").replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ");
@@ -439,17 +463,22 @@ function parseCounty(html, targetDay) {
       const value = cells.slice(1).join(" ").toUpperCase();
       const rowDates = dates(value);
       const applicable = rowDates.length ? rowDates : ds;
+      const minute = startMinute(context + " " + value);
       let status = "UNKNOWN", detail = "Posting not dated for today";
       const isNo = /\bNO[ -]+BURN\b|\bNON[ -]?BURN\b|\bNOT\s+(?:A\s+)?BURN\s+DAY\b/.test(value);
       const isYes = /^(?:YES[ :–-]*)?(?:BURN(?:\s+DAY)?|PERMISSIVE\s+BURN\s+DAY|BURNING\s+(?:ALLOWED|PERMITTED))[.!\s]*$/.test(value);
       if (applicable.length === 1 && applicable[0] === targetDay) {
         if (isNo) { status = "NO"; detail = "County reports no burning"; }
-        else if (isYes && !suspension) { status = "YES"; detail = "Permits / local rules apply"; }
+        else if (isYes && !suspension && minute !== -1) {
+          status = beforeStart(targetDay, minute) ? "NO" : "YES";
+          detail = status === "NO" ? "County start time not reached" : "Permits / local rules apply";
+        }
       } else if (isNo && suspension && applicable.length === 1 && applicable[0] <= targetDay) {
         // An explicitly ongoing suspension is not a stale daily forecast.
         status = "NO"; detail = "Burn permits suspended";
       } else if (applicable.length === 1) {
-        detail = "Posting: " + applicable[0].slice(5) + " • verify today";
+        // Other daily dates are separate forecasts, not conflicting current postings.
+        continue;
       }
       records[key].push({ status, detail });
     }
@@ -473,9 +502,13 @@ function parseFire(html) {
     const ds = dates(cells[2] || "");
     if (ds.length !== 1 || ds[0] > today) { values.push("UNKNOWN"); continue; }
     const s = cells[1] || "";
+    const minute = startMinute(cells[2] || "");
+    if (minute === -1) { values.push("UNKNOWN"); continue; }
+    if (beforeStart(ds[0], minute)) { values.push("PENDING"); continue; }
     values.push(/^Burning\s+Suspended\b/i.test(s) ? "SUSPENDED" : /^(?:Burning\s+Allowed|Permit\s+Required)\b/i.test(s) ? "OPEN" : "UNKNOWN");
   }
   if (values.includes("SUSPENDED")) return "SUSPENDED";
+  if (values.includes("PENDING")) return "PENDING";
   return values.length && values.every(v => v === values[0]) ? values[0] : "UNKNOWN";
 }
 
