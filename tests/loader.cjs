@@ -27,13 +27,13 @@ async function run(family,instant,storage,remote,expected,fetchExpected){
 for(const family of ['small','medium','large','extraLarge']){
  const storage=new Map([['/docs/DonahueBurnDay/update-state.json',JSON.stringify({version:6,nextCheck:0})]]);
  await run(family,'2026-11-06T16:24:00Z',storage,source,'BURN DAY',true);
- assert.equal(JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json')).version,7);
+ assert.equal(JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json')).version,8);
  assert.equal(storage.get('/docs/DonahueBurnDay/last-working.js'),source);
  await run(family,'2026-11-06T16:25:00Z',storage,null,'BURN DAY',false);
- // A failed subsequent download keeps release 7 cached and working.
+ // A failed subsequent download keeps release 8 cached and working.
  const state=JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json'));state.nextCheck=0;storage.set('/docs/DonahueBurnDay/update-state.json',JSON.stringify(state));
  await run(family,'2026-11-06T16:26:00Z',storage,null,'BURN DAY',true);
- assert.equal(JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json')).version,7);
+ assert.equal(JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json')).version,8);
  const w=await run(family,'2026-11-06T15:51:00Z',new Map(),source,'NO BURN',true);
  assert.equal(w.refreshAfterDate.toISOString(),'2026-11-06T16:00:00.000Z');
 }

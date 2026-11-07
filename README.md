@@ -1,6 +1,6 @@
 # Donahue Homestead Burn Day
 
-A standalone [Scriptable](https://scriptable.app/) Home Screen widget for the El Dorado County West Slope and the **El Dorado County portion** of the Tahoe Basin. Small, medium, and large widgets are supported. Each size displays **one area only**, selected automatically from your location or manually in the app.
+A standalone [Scriptable](https://scriptable.app/) Home Screen widget for **El Dorado, Placer, Yuba, and Sutter counties**, with separate burn zones where required. Small, medium, and large widgets are supported. Each size displays **one area only**, selected automatically from your location or manually in the app.
 
 No MiniNAS, GitHub account, API key, or external artwork is needed. You do not need programming experience: install Scriptable, copy the script, and select it in a Home Screen widget.
 
@@ -48,12 +48,12 @@ Use a single script for this widget. You do not need to create a separate update
 ### 4. Run it once and check the preview
 
 1. In the script editor, tap the **▶ play/run** button.
-2. Choose **Automatic — current location**, **El Dorado County — West Slope**, or **El Dorado County — Tahoe Basin**. Your choice is saved on this device. Automatic mode requests location access; manual choices do not need GPS.
+2. Choose **Automatic — current location**, or choose a county and then its burn area/zone. Your choice is saved on this device. Automatic mode requests location access; manual choices do not need GPS.
 3. Wait for the preview to appear. The default in-app preview is **medium**.
-4. Check that you see **EDC Burn Status**, the date, and just the selected area: **West Slope** or **Tahoe Basin**.
+4. Check that you see **Burn Status**, the date, and just the selected county and area.
 5. Close the preview and tap **Done** to leave the editor.
 
-**One area at a time.** Automatic mode follows your location within the currently supported El Dorado County areas. A manual choice stays selected until you change it. “Tahoe Basin” means the El Dorado County portion. If automatic mode cannot confidently identify a supported area, the widget asks you to choose one and shows **UNCONFIRMED**, rather than displaying another area's result.
+**One area at a time.** Automatic mode follows your location within the supported counties, respecting the limits described below. A manual choice stays selected until you change it. “Tahoe Basin” under El Dorado means that county's portion. Placer's Lake Tahoe shore is a separate choice. If automatic mode cannot confidently identify a supported area, the widget asks you to choose one and shows **UNCONFIRMED**, rather than displaying another area's result.
 
 A white **UNCONFIRMED** status can be a valid result. It means the available official postings could not confirm the status; it does not necessarily mean installation failed.
 
@@ -85,35 +85,42 @@ The Home Screen size you choose controls the installed widget's layout. The medi
 
 **You're ready:** the Home Screen widget displays one selected area. Tap it to open the area selector in Scriptable. Choose **Open official burn status** in that menu to visit the county page. iOS may take time to refresh the Home Screen after changing your choice.
 
-## Choose automatic or manual display
+## Coverage and area selection
 
-Tap the widget, or run **Donahue Burn Day** in Scriptable, to open the selector:
+| County | Coverage | Automatic location |
+| --- | --- | --- |
+| **El Dorado** | West Slope and El Dorado's Tahoe Basin portion | Selects the supported zone |
+| **Placer** | Western, Eastern, Lake Tahoe shore, Truckee Fire area, Granite Bay/Loomis, Auburn, Lincoln, Rocklin, Roseville | Selects the official mapped area; city prohibitions are retained |
+| **Yuba** | Four residential burn zones plus county overview | County overview; select a zone if decisions differ |
+| **Sutter** | Seven residential burn zones plus county overview | County overview; select a zone if decisions differ |
 
-- **Automatic — current location:** shows West Slope or the El Dorado County Tahoe portion based on your current GPS position.
-- **El Dorado County — West Slope:** pins the West Slope, including while you travel.
-- **El Dorado County — Tahoe Basin:** pins that county's Tahoe portion, including while you travel.
-- **Open official burn status:** opens the county's official page without changing the saved selection.
-- **Cancel:** exits without changing the selection.
+Tap the widget, or run **Donahue Burn Day** in Scriptable, to open the selector. Choose **Automatic — current location**, or choose a county and then an area. **Open official burn status** opens the current manual area's source (the El Dorado page when Automatic is selected). Yuba/Sutter menus include an official zone-map link. **Cancel** preserves the saved selection.
 
-The saved choice applies to all widgets using this script on the same device and survives automatic code updates. Leave the Home Screen widget **Parameter** empty. No location history is saved. Selecting automatic mode clears the manual override.
+The saved choice applies to all widgets using this script on the same device and survives automatic updates. Leave the Home Screen widget **Parameter** empty. Manual selection bypasses GPS. Automatic mode does not reuse a previous location.
 
-When automatic location is missing, inaccurate, near a boundary, or outside current coverage, the widget displays a single **UNCONFIRMED** selection prompt. It does not reuse a previous location or infer the status of an unsupported county. New surrounding-county sources remain planned; this release changes display and selection within the two already supported El Dorado County areas.
+Yuba and Sutter's county overview is affirmative only if **every residential zone** confirms burning within its posted hours. It is negative only if every zone reports no burning at the current time. Mixed or incomplete results remain unconfirmed and ask you to select a zone. The district-permit/agricultural column is never substituted for the residential decision.
 
-The location check uses bundled geometry from the county's official [CountyBoundary layer](https://services.arcgis.com/UHg8l1wC48WQyDSO/ArcGIS/rest/services/CountyBoundary/FeatureServer/0) and [TRPA boundary layer](https://services.arcgis.com/UHg8l1wC48WQyDSO/ArcGIS/rest/services/TRPABoundary/FeatureServer/3). The Tahoe outline is used only within the El Dorado County boundary. It does not extend this widget's burn-status coverage to Placer County or Nevada.
+When location is unavailable, inaccurate, near a mapped boundary, overlapping, or outside coverage, the widget shows one unconfirmed selection prompt. Placer geography comes from its official public burn-status map. El Dorado geography comes from the official county/TRPA layers. Yuba/Sutter county outlines come from US Census TIGERweb; individual zone geometry is not inferred. Coordinates are checked locally and are not stored or sent to a GIS service.
 
-The outlines are simplified for display selection, with an uncertainty margin near their edges. They select the single displayed burn area; they do not determine permission to burn. GPS coordinates are checked on your device and are not stored or sent to the GIS servers. Location is requested when the widget runs rather than continuously tracked.
+Placer status codes are matched to the current Pacific date, including posted 8 AM–5 PM/6 PM windows. Daylight-only codes use NOAA solar equations over the area's bounding corners; a five-minute uncertainty margin and times outside the confirmed daylight window remain unconfirmed. This calculation does not assess local terrain or replace permit conditions.
+
+**Not yet covered:** Amador, Calaveras, Sacramento, Alpine, Northern Sierra's Nevada/Truckee/Sierra/Plumas areas, and Nevada-state fire districts. The Northern Sierra table currently publishes weekday-only headings without a full date; it has not been enabled as a confirmed daily feed. Phone-only and undated sources require further validation. Do not use an adjacent county's status for these areas.
 
 ## Read the burn status
 
 | Color | Display | Meaning |
 | --- | --- | --- |
-| **Green** | **BURN DAY** | The county's posting and CAL FIRE's El Dorado County entry both allow burning. |
+| **Green** | **BURN DAY** | The selected area's official residential decision and its own county's CAL FIRE entry both allow burning within confirmed hours. |
 | **Red** | **NO BURN** | Either source confirms a prohibition. |
 | **White** | **UNCONFIRMED** | The available postings do not confirm a clear status. |
 
 The CAL FIRE entry applies to **State Responsibility Areas (SRA)**. Check the visible date, official postings, applicable permits, and local rules before burning. An unconfirmed result is not permission to burn.
 
 Official sources:
+- [Placer County burn-day map](https://www.placer.ca.gov/1671/Burn-Days) and its [public data service](https://services9.arcgis.com/NENkjkswKTzMfG3A/arcgis/rest/services/Burn_Day_Status_Public/FeatureServer/0)
+- [Feather River residential burn decisions](https://www.fraqmdca.gov/burn-day-status), with its district-hosted [fallback](https://fraqmd.specialdistrict.org/burn-day-status)
+- [Feather River zone maps](https://www.fraqmdca.gov/burn-zone-information)
+- [NOAA solar equations](https://gml.noaa.gov/grad/solcalc/solareqns.PDF)
 - [El Dorado County burn day status](https://www.eldoradocounty.ca.gov/Services/Burn-Day)
 - [CAL FIRE current burn status](https://burnpermit.fire.ca.gov/current-burn-status/)
 
@@ -121,17 +128,19 @@ Official sources:
 
 After installation, the script checks [the public release file](https://raw.githubusercontent.com/mfceosean/donahue-homestead-burn-day/main/Donahue_Burn_Day.js) about every **six hours when iOS runs it**. Most widget updates require no further copying or setup.
 
+**Release 8 (November 6, 2026):** adds all nine official Placer areas and eleven Yuba/Sutter residential zones, with county overviews for the latter. Automatic mode recognizes all four supported counties. Selection is grouped by county, and the title is now **Burn Status**. Daily dates, local bans, posted hours, daylight restrictions, unknown data, and county-specific CAL FIRE status are evaluated separately. The existing loader and saved selections are preserved. The downloaded body remains within the original loader's size limit; no reinstall is needed.
+
 **Release 7 (November 6, 2026):** all sizes show one automatically located or manually selected area. Tap the widget to choose automatic mode, West Slope, Tahoe Basin (EDC portion), or the official page. Manual selection is saved locally and bypasses GPS. Unavailable or unsupported automatic locations show an unconfirmed selection prompt. The existing loader is unchanged apart from its release number; installed copies receive this through the usual automatic update process without reinstalling.
 
 **Release 6 (November 6, 2026):** separate daily county postings are evaluated by their dates, so yesterday's table no longer conflicts with today's burn day. Explicit county and CAL FIRE start times are checked in Pacific time; before a posted opening, the widget shows **NO BURN** and requests a refresh at that start time (or in 30 minutes, whichever comes first). Unreadable explicit start times remain unconfirmed. The existing loader, update URL, six-hour code check, and cached fallback are preserved; no reinstall is needed.
 
-**Release 5 (October 7, 2026):** the top heading is **EDC Burn Status** in small, medium, and large widgets. Existing installations receive this heading automatically at their next successful code update check; no reinstall or script rename is needed. EDC means El Dorado County. The longer heading has adjusted spacing in each layout.
+**Release 5 (October 7, 2026):** the top heading was **EDC Burn Status** in small, medium, and large widgets. Existing installations receive this heading automatically at their next successful code update check; no reinstall or script rename is needed. EDC means El Dorado County. The longer heading has adjusted spacing in each layout.
 
 Burn status is fetched when the script runs. The widget requests another refresh after about **30 minutes**, but **iOS determines the actual refresh time**. Neither timer guarantees an immediate Home Screen change.
 
 A last working widget-code update is cached locally, and the installed code remains available as a fallback. This protects against failed code downloads; it does **not** guarantee current burn status without access to the official sources.
 
-To check the current result manually, open Scriptable and run **Donahue Burn Day** again. Choose an area or automatic mode to fetch burn status. The script checks for a code update if the update interval has elapsed. The Home Screen may still take time to refresh.
+To check the current result manually, open Scriptable and run **Donahue Burn Day** again. Choose a county/area or automatic mode to fetch burn status. The script checks for a code update if the update interval has elapsed. The Home Screen may still take time to refresh.
 
 ## Troubleshooting
 
@@ -141,7 +150,7 @@ To check the current result manually, open Scriptable and run **Donahue Burn Day
 | **The widget asks you to select a script or stays on a placeholder** | Touch and hold it → **Edit Widget** → **Script** → **Donahue Burn Day**. |
 | **The script is missing from the selection list** | Return to Scriptable, confirm the script is saved with the expected name, run it once, and retry **Edit Widget**. |
 | **Running the script shows a JavaScript error** | Replace the editor contents with the complete raw file. Do not paste the GitHub page, a URL, or only part of the code. Run it again. |
-| **The header says LOCATION UNAVAILABLE or AREA NOT CONFIRMED** | Tap the widget and select a supported area manually, or check Scriptable location permission and use Automatic mode. Unsupported counties are not yet covered. |
+| **The header says LOCATION UNAVAILABLE or AREA NOT CONFIRMED** | Tap the widget and select a supported county/area manually, or check Scriptable location permission and use Automatic mode. Unsupported counties remain unconfirmed. |
 | **Status is white / UNCONFIRMED** | Check your internet connection and tap through to the official sources. Unavailable, stale, or unexpected source data can produce this result. |
 | **The date or checked time looks old** | Run the script in Scriptable with an internet connection. Give iOS time to refresh the Home Screen widget, and use the official page for an immediate status check. |
 | **A newly published design change has not appeared** | Code checks occur about every six hours when iOS runs the script. Run it again after that interval; if an update check fails, it can retry after about 30 minutes on a later run. |
@@ -157,7 +166,7 @@ Updates to the widget body take effect on installed devices at their next update
 
 ## Regression checks
 
-Run `node tests/burn-status.cjs`, `node tests/loader.cjs`, and `node tests/selection.cjs` with Node.js. The fixtures capture the official November 5/6 county tables and November 6 CAL FIRE entry. Checks cover different daily dates, actual same-day prohibitions, ongoing suspensions, Pacific start-time boundaries, invalid times, and upgrade/cache/fallback execution in all four Scriptable widget sizes. Selection checks cover a single area in every size, differing West Slope/Tahoe decisions, manual persistence and GPS bypass, missing/outside/ambiguous location, source suppression without a selected area, menu actions, and unchanged loader code. Drawing and device APIs are mocked; physical iOS rendering and refresh scheduling require device verification.
+Run `node tests/burn-status.cjs`, `node tests/loader.cjs`, `node tests/selection.cjs`, and `node tests/regional.cjs` with Node.js. The fixtures capture the official November 5/6 county tables and November 6 CAL FIRE entry. Checks cover different daily dates, actual same-day prohibitions, ongoing suspensions, Pacific start-time boundaries, invalid times, and upgrade/cache/fallback execution in all four Scriptable widget sizes. Selection checks cover a single area in every size, differing West Slope/Tahoe decisions, manual persistence and GPS bypass, missing/outside/ambiguous location, source suppression without a selected area, menu actions, and unchanged loader code. Regional checks cover Placer codes and dates, local bans, county-specific CAL FIRE isolation, residential column selection, missing zones, county consensus, burn-hour limits, solar windows, automatic geometry, and the original loader size limit. Drawing and device APIs are mocked; physical iOS rendering and refresh scheduling require device verification.
 
 Created by Donahue Homestead.
 

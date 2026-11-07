@@ -4,11 +4,14 @@ const body=source.split('\n// WIDGET_BODY_START\n')[1];
 const county=fs.readFileSync(path.join(__dirname,'fixtures/county-2026-11-06.html'),'utf8')
   .replace(/(SOUTH LAKE TAHOE BASIN[^<]*<\/td>\s*<td[^>]*><strong>)BURN DAY/g,'$1NO BURN DAY');
 const fire=fs.readFileSync(path.join(__dirname,'fixtures/fire-2026-11-06.html'),'utf8');
+const placer=fs.readFileSync(path.join(__dirname,'fixtures/placer-2026-11-06.json'),'utf8');
+const feather=fs.readFileSync(path.join(__dirname,'fixtures/feather-2026-11-06.html'),'utf8');
+const regionalFire=['El Dorado','Placer','Yuba','Sutter'].map(c=>fire.replace('El Dorado County',c+' County')).join('');
 const setting='/docs/DonahueBurnDay/area-selection.json';
 const west={latitude:38.7296,longitude:-120.7985,horizontalAccuracy:20};
 const tahoe={latitude:38.9399,longitude:-119.9772,horizontalAccuracy:20};
 let checks=0;
-async function run({family='medium',saved,location=west,app=false,answer=-1,locationError=false,countyHtml=county,fireHtml=fire}={}) {
+async function run({family='medium',saved,location=west,app=false,answer=-1,locationError=false,countyHtml=county,fireHtml=fire,placerData=placer,featherHtml=feather,featherPrimaryFailure=false}={}) {
  const drawn=[],storage=new Map(),menus=[],opened=[];let widget,gps=0;
  if(saved!==undefined)storage.set(setting,typeof saved==='string'?saved:JSON.stringify({area:saved.area}));
  const noop=()=>{};
@@ -18,8 +21,8 @@ async function run({family='medium',saved,location=west,app=false,answer=-1,loca
  const context=vm.createContext({Intl,console,Date:Clock,config:{runsInWidget:!app,runsInApp:app,widgetFamily:family},
  FileManager:{local:()=>({documentsDirectory:()=>'/docs',joinPath:(a,b)=>a+'/'+b,fileExists:p=>storage.has(p),createDirectory:noop,readString:p=>storage.get(p),writeString:(p,v)=>storage.set(p,v)})},
  URLScheme:{forRunningScript:()=> 'scriptable:///run?scriptName=Donahue'},Safari:{openInApp:async u=>opened.push(u)},
- Alert:class {constructor(){this.actions=[];menus.push(this);}addAction(a){this.actions.push(a);}addCancelAction(a){this.cancel=a;}async presentSheet(){return answer;}},
- Request:class {constructor(u){this.url=u;this.response={statusCode:200};}async loadString(){return this.url.includes('eldoradocounty')?countyHtml:fireHtml;}},
+ Alert:class {constructor(){this.actions=[];menus.push(this);}addAction(a){this.actions.push(a);}addCancelAction(a){this.cancel=a;}async presentSheet(){return Array.isArray(answer)?answer.shift():answer;}},
+ Request:class {constructor(u){this.url=u;this.response={statusCode:200};}async loadString(){if(this.url.includes('FeatureServer'))return placerData;if(this.url.includes('fraqmd'))return featherPrimaryFailure&&!this.url.includes('specialdistrict')?'<h1>Site Unavailable</h1>':featherHtml;return this.url.includes('eldoradocounty')?countyHtml:fireHtml;}},
  Location:{setAccuracyToHundredMeters:noop,current:async()=>{gps++;if(locationError)throw Error('GPS denied');return location;}},Timer:{schedule:()=>({invalidate:noop})},
  DrawContext:Drawing,Path:Drawing,Color:Drawing,Size:Drawing,Rect:Drawing,Point:Drawing,ListWidget:Drawing,Font:{systemFont:noop,boldSystemFont:noop},Script:{setWidget:w=>widget=w}
  });
@@ -45,15 +48,28 @@ for(const family of ['small','medium','large','extraLarge']){
  const r=await run({family,locationError:true});single(r,'Select an area','UNCONFIRMED','West Slope');
 }
 for(const saved of ['{broken',JSON.stringify({area:'amador'})])single(await run({saved}),'West Slope','BURN DAY','Tahoe Basin');
-for(const [answer,area] of [[0,'auto'],[1,'west'],[2,'tahoe']]){
- const r=await run({app:true,answer});assert.equal(JSON.parse(r.storage.get(setting)).area,area);assert(r.widget);assert.equal(r.menus.length,1);checks++;
+for(const [answer,area] of [[0,'auto'],[[1,0],'west'],[[1,1],'tahoe']]){
+ const r=await run({app:true,answer});assert.equal(JSON.parse(r.storage.get(setting)).area,area);assert(r.widget);assert(r.menus.length>=1);checks++;
  const next=await run({saved:{area},location:tahoe});assert(next.drawn.includes(area==='west'?'West Slope':'Tahoe Basin'));checks++;
 }
 const cancel=await run({app:true,answer:-1,saved:{area:'west'}});assert(!cancel.widget);assert.equal(JSON.parse(cancel.storage.get(setting)).area,'west');assert.equal(cancel.gps,0);checks++;
-const official=await run({app:true,answer:3});assert.equal(official.opened[0],'https://www.eldoradocounty.ca.gov/Services/Burn-Day');assert(!official.widget);checks++;
+const official=await run({app:true,answer:5});assert.equal(official.opened[0],'https://www.eldoradocounty.ca.gov/Services/Burn-Day');assert(!official.widget);checks++;
 // Unknown geography must not inherit even a confirmed EDC prohibition.
 const outside=await run({family:'large',location:null,fireHtml:fire.replace('Permit Required','Burning Suspended')});assert(!outside.drawn.includes('Suspended'));checks++;
-const previous=require('node:child_process').execFileSync('git',['show','HEAD:Donahue_Burn_Day.js'],{cwd:path.join(__dirname,'..'),encoding:'utf8'});
-assert.equal(source.split('\n// WIDGET_BODY_START\n')[0].replace('VERSION: 7','VERSION: 6'),previous.split('\n// WIDGET_BODY_START\n')[0]);checks++;
+const previous=fs.readFileSync(path.join(__dirname,'fixtures/loader-release7.txt'),'utf8');
+assert.equal(source.split('\n// WIDGET_BODY_START\n')[0].replace(/^\/\/ DONAHUE_RELEASE_VERSION: \d+/,'// DONAHUE_RELEASE_VERSION: 7'),previous);checks++;
+for(const family of ['small','medium','large','extraLarge']){
+ for(const [area,name,status] of [['placer-west','Western Placer','BURN DAY'],['placer-auburn','Auburn','NO BURN'],['placer-roseville','Roseville','NO BURN'],['yuba-4','Zone 4','BURN DAY'],['sutter-1','Zone 1','NO BURN'],['yuba','County overview','UNCONFIRMED'],['sutter','County overview','NO BURN']]){
+  const r=await run({family,saved:{area},fireHtml:regionalFire});single(r,name,status,'West Slope');assert.equal(r.gps,0);checks++;
+ }
+ const r=await run({family,location:{latitude:38.7521,longitude:-121.288,horizontalAccuracy:10},fireHtml:regionalFire});single(r,'Roseville','NO BURN','West Slope');
+}
+const blocked=await run({saved:{area:'placer-west'},fireHtml:regionalFire.replace(/Permit Required/g,'Burning Suspended')});single(blocked,'Western Placer','NO BURN','West Slope');
+const missing=await run({saved:{area:'placer-west'},fireHtml:fire});single(missing,'Western Placer','UNCONFIRMED','West Slope');
+const unavailable=await run({saved:{area:'placer-west'},placerData:'{"error":{}}',fireHtml:regionalFire});single(unavailable,'Western Placer','UNCONFIRMED','West Slope');
+const fallback=await run({saved:{area:'yuba-4'},fireHtml:regionalFire,featherPrimaryFailure:true});single(fallback,'Zone 4','BURN DAY','West Slope');
+for(const [answer,area] of [[[2,7],'placer-west'],[[3,3],'yuba-4'],[[4,6],'sutter-7']]){
+ const r=await run({app:true,answer,fireHtml:regionalFire});assert.equal(JSON.parse(r.storage.get(setting)).area,area);assert.equal(r.menus.length,2);checks++;
+}
 console.log(`${checks} selection/render checks passed: single area, different area decisions, GPS fallback, manual persistence, app menu, unchanged loader`);
 })().catch(e=>{console.error(e);process.exitCode=1;});
