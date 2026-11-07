@@ -1,6 +1,6 @@
 # Donahue Homestead Burn Day
 
-A standalone [Scriptable](https://scriptable.app/) Home Screen widget for the El Dorado County West Slope and the **El Dorado County portion** of the Tahoe Basin. Small, medium, and large widgets are supported.
+A standalone [Scriptable](https://scriptable.app/) Home Screen widget for the El Dorado County West Slope and the **El Dorado County portion** of the Tahoe Basin. Small, medium, and large widgets are supported. Each size displays **one area only**, selected automatically from your location or manually in the app.
 
 No MiniNAS, GitHub account, API key, or external artwork is needed. You do not need programming experience: install Scriptable, copy the script, and select it in a Home Screen widget.
 
@@ -48,12 +48,12 @@ Use a single script for this widget. You do not need to create a separate update
 ### 4. Run it once and check the preview
 
 1. In the script editor, tap the **▶ play/run** button.
-2. If Scriptable asks for location access, allow it if you want the widget to emphasize your local area. Location is optional: denying it keeps both areas equally sized and does not prevent the burn status checks.
+2. Choose **Automatic — current location**, **El Dorado County — West Slope**, or **El Dorado County — Tahoe Basin**. Your choice is saved on this device. Automatic mode requests location access; manual choices do not need GPS.
 3. Wait for the preview to appear. The default in-app preview is **medium**.
-4. Check that you see **EDC Burn Status**, the date, and the two areas: **West Slope** and **Tahoe Basin**.
+4. Check that you see **EDC Burn Status**, the date, and just the selected area: **West Slope** or **Tahoe Basin**.
 5. Close the preview and tap **Done** to leave the editor.
 
-**Location emphasizes your area.** Within El Dorado County, the local area gets a larger card labeled **YOUR AREA** and the other area remains visible in a smaller card. Without a usable location, both cards stay equally sized. “Tahoe Basin” means the El Dorado County portion, not the entire basin. The widget continues to display those same two areas when used elsewhere.
+**One area at a time.** Automatic mode follows your location within the currently supported El Dorado County areas. A manual choice stays selected until you change it. “Tahoe Basin” means the El Dorado County portion. If automatic mode cannot confidently identify a supported area, the widget asks you to choose one and shows **UNCONFIRMED**, rather than displaying another area's result.
 
 A white **UNCONFIRMED** status can be a valid result. It means the available official postings could not confirm the status; it does not necessarily mean installation failed.
 
@@ -68,9 +68,9 @@ A white **UNCONFIRMED** status can be a valid result. It means the available off
 
 | Size | What you get |
 | --- | --- |
-| **Small** | Compact status for both areas. |
-| **Medium** | Two side-by-side status cards with brief explanations. |
-| **Large** | More detail, including separate county and CAL FIRE source results. |
+| **Small** | One area, its status, and a short explanation. |
+| **Medium** | One full-width area card with its status and explanation. |
+| **Large** | One area with county and CAL FIRE source results for that area only. |
 
 The Home Screen size you choose controls the installed widget's layout. The medium preview in Scriptable does not limit you to a medium Home Screen widget.
 
@@ -83,18 +83,25 @@ The Home Screen size you choose controls the installed widget's layout. The medi
 5. Tap outside the settings panel to finish.
 6. Allow a little time for the widget to load.
 
-**You're ready:** the Home Screen widget should display the same two areas as the preview. Tapping it opens the county's official burn day page.
+**You're ready:** the Home Screen widget displays one selected area. Tap it to open the area selector in Scriptable. Choose **Open official burn status** in that menu to visit the county page. iOS may take time to refresh the Home Screen after changing your choice.
 
-## How location changes the layout
+## Choose automatic or manual display
 
-- **Inside the El Dorado County West Slope:** the West Slope card is larger and appears first.
-- **Inside the El Dorado County portion of the Tahoe Basin:** the Tahoe card is larger and appears first.
-- **Location permission declined, disabled, or unavailable:** both areas remain equally sized.
-- **Outside El Dorado County, near a boundary, or with poor GPS accuracy:** both areas remain equally sized so the widget does not guess which status applies.
+Tap the widget, or run **Donahue Burn Day** in Scriptable, to open the selector:
+
+- **Automatic — current location:** shows West Slope or the El Dorado County Tahoe portion based on your current GPS position.
+- **El Dorado County — West Slope:** pins the West Slope, including while you travel.
+- **El Dorado County — Tahoe Basin:** pins that county's Tahoe portion, including while you travel.
+- **Open official burn status:** opens the county's official page without changing the saved selection.
+- **Cancel:** exits without changing the selection.
+
+The saved choice applies to all widgets using this script on the same device and survives automatic code updates. Leave the Home Screen widget **Parameter** empty. No location history is saved. Selecting automatic mode clears the manual override.
+
+When automatic location is missing, inaccurate, near a boundary, or outside current coverage, the widget displays a single **UNCONFIRMED** selection prompt. It does not reuse a previous location or infer the status of an unsupported county. New surrounding-county sources remain planned; this release changes display and selection within the two already supported El Dorado County areas.
 
 The location check uses bundled geometry from the county's official [CountyBoundary layer](https://services.arcgis.com/UHg8l1wC48WQyDSO/ArcGIS/rest/services/CountyBoundary/FeatureServer/0) and [TRPA boundary layer](https://services.arcgis.com/UHg8l1wC48WQyDSO/ArcGIS/rest/services/TRPABoundary/FeatureServer/3). The Tahoe outline is used only within the El Dorado County boundary. It does not extend this widget's burn-status coverage to Placer County or Nevada.
 
-The outlines are simplified for display selection, with an uncertainty margin near their edges. They are used only to choose a layout; they do not determine permission to burn. GPS coordinates are checked on your device and are not stored or sent to the GIS servers. Location is requested when the widget runs rather than continuously tracked.
+The outlines are simplified for display selection, with an uncertainty margin near their edges. They select the single displayed burn area; they do not determine permission to burn. GPS coordinates are checked on your device and are not stored or sent to the GIS servers. Location is requested when the widget runs rather than continuously tracked.
 
 ## Read the burn status
 
@@ -114,6 +121,8 @@ Official sources:
 
 After installation, the script checks [the public release file](https://raw.githubusercontent.com/mfceosean/donahue-homestead-burn-day/main/Donahue_Burn_Day.js) about every **six hours when iOS runs it**. Most widget updates require no further copying or setup.
 
+**Release 7 (November 6, 2026):** all sizes show one automatically located or manually selected area. Tap the widget to choose automatic mode, West Slope, Tahoe Basin (EDC portion), or the official page. Manual selection is saved locally and bypasses GPS. Unavailable or unsupported automatic locations show an unconfirmed selection prompt. The existing loader is unchanged apart from its release number; installed copies receive this through the usual automatic update process without reinstalling.
+
 **Release 6 (November 6, 2026):** separate daily county postings are evaluated by their dates, so yesterday's table no longer conflicts with today's burn day. Explicit county and CAL FIRE start times are checked in Pacific time; before a posted opening, the widget shows **NO BURN** and requests a refresh at that start time (or in 30 minutes, whichever comes first). Unreadable explicit start times remain unconfirmed. The existing loader, update URL, six-hour code check, and cached fallback are preserved; no reinstall is needed.
 
 **Release 5 (October 7, 2026):** the top heading is **EDC Burn Status** in small, medium, and large widgets. Existing installations receive this heading automatically at their next successful code update check; no reinstall or script rename is needed. EDC means El Dorado County. The longer heading has adjusted spacing in each layout.
@@ -122,7 +131,7 @@ Burn status is fetched when the script runs. The widget requests another refresh
 
 A last working widget-code update is cached locally, and the installed code remains available as a fallback. This protects against failed code downloads; it does **not** guarantee current burn status without access to the official sources.
 
-To check the current result manually, open Scriptable and run **Donahue Burn Day** again. This fetches burn status and checks for a code update if the update interval has elapsed. The Home Screen may still take time to refresh.
+To check the current result manually, open Scriptable and run **Donahue Burn Day** again. Choose an area or automatic mode to fetch burn status. The script checks for a code update if the update interval has elapsed. The Home Screen may still take time to refresh.
 
 ## Troubleshooting
 
@@ -132,7 +141,7 @@ To check the current result manually, open Scriptable and run **Donahue Burn Day
 | **The widget asks you to select a script or stays on a placeholder** | Touch and hold it → **Edit Widget** → **Script** → **Donahue Burn Day**. |
 | **The script is missing from the selection list** | Return to Scriptable, confirm the script is saved with the expected name, run it once, and retry **Edit Widget**. |
 | **Running the script shows a JavaScript error** | Replace the editor contents with the complete raw file. Do not paste the GitHub page, a URL, or only part of the code. Run it again. |
-| **The header says LOCATION UNAVAILABLE** | Burn status checks still work. If you want automatic local-area emphasis, check **Settings → Privacy & Security → Location Services → Scriptable**, allow location access, and run the script again. |
+| **The header says LOCATION UNAVAILABLE or AREA NOT CONFIRMED** | Tap the widget and select a supported area manually, or check Scriptable location permission and use Automatic mode. Unsupported counties are not yet covered. |
 | **Status is white / UNCONFIRMED** | Check your internet connection and tap through to the official sources. Unavailable, stale, or unexpected source data can produce this result. |
 | **The date or checked time looks old** | Run the script in Scriptable with an internet connection. Give iOS time to refresh the Home Screen widget, and use the official page for an immediate status check. |
 | **A newly published design change has not appeared** | Code checks occur about every six hours when iOS runs the script. Run it again after that interval; if an update check fails, it can retry after about 30 minutes on a later run. |
@@ -148,7 +157,7 @@ Updates to the widget body take effect on installed devices at their next update
 
 ## Regression checks
 
-Run `node tests/burn-status.cjs` and `node tests/loader.cjs` with Node.js. The fixtures capture the official November 5/6 county tables and November 6 CAL FIRE entry. Checks cover different daily dates, actual same-day prohibitions, ongoing suspensions, Pacific start-time boundaries, invalid times, and upgrade/cache/fallback execution in all four Scriptable widget sizes. Drawing and device APIs are mocked; physical iOS rendering and refresh scheduling require device verification.
+Run `node tests/burn-status.cjs`, `node tests/loader.cjs`, and `node tests/selection.cjs` with Node.js. The fixtures capture the official November 5/6 county tables and November 6 CAL FIRE entry. Checks cover different daily dates, actual same-day prohibitions, ongoing suspensions, Pacific start-time boundaries, invalid times, and upgrade/cache/fallback execution in all four Scriptable widget sizes. Selection checks cover a single area in every size, differing West Slope/Tahoe decisions, manual persistence and GPS bypass, missing/outside/ambiguous location, source suppression without a selected area, menu actions, and unchanged loader code. Drawing and device APIs are mocked; physical iOS rendering and refresh scheduling require device verification.
 
 Created by Donahue Homestead.
 
