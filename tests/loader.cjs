@@ -1,12 +1,13 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync(path.join(__dirname,'../Donahue_Burn_Day.js'),'utf8');
+const boundaries=fs.readFileSync(path.join(__dirname,'../boundaries-v9.json'),'utf8');
 const county=fs.readFileSync(path.join(__dirname,'fixtures/county-2026-11-06.html'),'utf8');
 const fire=fs.readFileSync(path.join(__dirname,'fixtures/fire-2026-11-06.html'),'utf8');
 const marker='\n// WIDGET_BODY_START\n';
 // This loader is unchanged from release 6 (apart from the first-line release number).
 const loader=source.slice(0,source.indexOf(marker));
 async function run(family,instant,storage,remote,expected,fetchExpected){
-  const drawn=[],requested=[];let widget;
+  const drawn=[],requested=[];let widget;storage.set('/docs/DonahueBurnDay/boundaries-v9.json',boundaries);
   const clock=new Date(instant).getTime();
   class Clock extends Date { constructor(...args){super(...(args.length?args:[clock]));}static now(){return clock;} }
   const noop=()=>{};
@@ -27,13 +28,13 @@ async function run(family,instant,storage,remote,expected,fetchExpected){
 for(const family of ['small','medium','large','extraLarge']){
  const storage=new Map([['/docs/DonahueBurnDay/update-state.json',JSON.stringify({version:6,nextCheck:0})]]);
  await run(family,'2026-11-06T16:24:00Z',storage,source,'BURN DAY',true);
- assert.equal(JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json')).version,8);
+ assert.equal(JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json')).version,9);
  assert.equal(storage.get('/docs/DonahueBurnDay/last-working.js'),source);
  await run(family,'2026-11-06T16:25:00Z',storage,null,'BURN DAY',false);
- // A failed subsequent download keeps release 8 cached and working.
+ // A failed subsequent download keeps release 9 cached and working.
  const state=JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json'));state.nextCheck=0;storage.set('/docs/DonahueBurnDay/update-state.json',JSON.stringify(state));
  await run(family,'2026-11-06T16:26:00Z',storage,null,'BURN DAY',true);
- assert.equal(JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json')).version,8);
+ assert.equal(JSON.parse(storage.get('/docs/DonahueBurnDay/update-state.json')).version,9);
  const w=await run(family,'2026-11-06T15:51:00Z',new Map(),source,'NO BURN',true);
  assert.equal(w.refreshAfterDate.toISOString(),'2026-11-06T16:00:00.000Z');
 }

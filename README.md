@@ -1,6 +1,6 @@
 # Donahue Homestead Burn Day
 
-A standalone [Scriptable](https://scriptable.app/) Home Screen widget for **El Dorado, Placer, Yuba, and Sutter counties**, with separate burn zones where required. Small, medium, and large widgets are supported. Each size displays **one area only**, selected automatically from your location or manually in the app.
+A standalone [Scriptable](https://scriptable.app/) Home Screen widget with location-aware information for **15 California counties**. Automated daily sources cover El Dorado, Placer, Yuba, Sutter and eligible rural Butte areas; ten other counties provide clear call-to-confirm guidance rather than inferred permission. Small, medium, and large widgets are supported. Each size displays **one area only**, selected automatically from your location or manually in the app.
 
 No MiniNAS, GitHub account, API key, or external artwork is needed. You do not need programming experience: install Scriptable, copy the script, and select it in a Home Screen widget.
 
@@ -93,18 +93,28 @@ The Home Screen size you choose controls the installed widget's layout. The medi
 | **Placer** | Western, Eastern, Lake Tahoe shore, Truckee Fire area, Granite Bay/Loomis, Auburn, Lincoln, Rocklin, Roseville | Selects the official mapped area; city prohibitions are retained |
 | **Yuba** | Four residential burn zones plus county overview | County overview; select a zone if decisions differ |
 | **Sutter** | Seven residential burn zones plus county overview | County overview; select a zone if decisions differ |
+| **Butte** | Dated residential decisions; manually selected eligible rural areas | County overview asks for local-area confirmation when burning is permitted |
+| **Amador, Calaveras, Tuolumne, Sacramento, Alpine** | Official burn-line links and county-specific CAL FIRE restrictions | Identifies county; shows **CALL TO CONFIRM** unless a CAL FIRE prohibition is confirmed |
+| **Nevada, Sierra, Plumas, Yolo, Solano** | Local/district confirmation guidance and official links | Identifies county; shows **CALL TO CONFIRM** unless a CAL FIRE prohibition is confirmed |
 
-Tap the widget, or run **Donahue Burn Day** in Scriptable, to open the selector. Choose **Automatic — current location**, or choose a county and then an area. **Open official burn status** opens the current manual area's source (the El Dorado page when Automatic is selected). Yuba/Sutter menus include an official zone-map link. **Cancel** preserves the saved selection.
+Tap the widget, or run **Donahue Burn Day** in Scriptable, to open the selector. Choose **Automatic — current location**, or choose a county and then an area. **Open official burn status** resolves the current automatic or manual area and opens its source. If the automatic area cannot be confirmed, select a county manually first. **Call official burn line** opens the applicable telephone number; where the correct district must first be identified (such as Solano), it opens the official guidance page. Yuba/Sutter menus include an official zone-map link. **Cancel** preserves the saved selection.
 
 The saved choice applies to all widgets using this script on the same device and survives automatic updates. Leave the Home Screen widget **Parameter** empty. Manual selection bypasses GPS. Automatic mode does not reuse a previous location.
 
 Yuba and Sutter's county overview is affirmative only if **every residential zone** confirms burning within its posted hours. It is negative only if every zone reports no burning at the current time. Mixed or incomplete results remain unconfirmed and ask you to select a zone. The district-permit/agricultural column is never substituted for the residential decision.
 
-When location is unavailable, inaccurate, near a mapped boundary, overlapping, or outside coverage, the widget shows one unconfirmed selection prompt. Placer geography comes from its official public burn-status map. El Dorado geography comes from the official county/TRPA layers. Yuba/Sutter county outlines come from US Census TIGERweb; individual zone geometry is not inferred. Coordinates are checked locally and are not stored or sent to a GIS service.
+When location is unavailable, inaccurate, near a mapped boundary, overlapping, or outside coverage, the widget shows one unconfirmed selection prompt. Placer geography comes from its official public burn-status map. El Dorado geography comes from the official county/TRPA layers. Additional county outlines come from US Census TIGERweb; individual Yuba/Sutter zone geometry is not inferred. Coordinates are checked locally and are not stored or sent to a GIS service.
 
 Placer status codes are matched to the current Pacific date, including posted 8 AM–5 PM/6 PM windows. Daylight-only codes use NOAA solar equations over the area's bounding corners; a five-minute uncertainty margin and times outside the confirmed daylight window remain unconfirmed. This calculation does not assess local terrain or replace permit conditions.
 
-**Not yet covered:** Amador, Calaveras, Sacramento, Alpine, Northern Sierra's Nevada/Truckee/Sierra/Plumas areas, and Nevada-state fire districts. The Northern Sierra table currently publishes weekday-only headings without a full date; it has not been enabled as a confirmed daily feed. Phone-only and undated sources require further validation. Do not use an adjacent county's status for these areas.
+**Call-to-confirm coverage is distinct from automated permission.** The ten guidance counties, including Amador/Jackson, do not receive a green status from seasonal CAL FIRE permission alone. Northern Sierra's current weekday-only table is not accepted as a dated daily decision. Sacramento rural eligibility must be checked locally. Yolo requires the daily agricultural burn-line check followed by county dispatch authorization at **530-666-8998**. Solano spans two air districts; identify the correct district through the official page first.
+
+**Butte:** Automatic mode displays a county overview. A confirmed daily prohibition can show NO BURN; a permissive posting instead asks for local confirmation. The manually selected **Eligible rural areas** option excludes every incorporated city, Chico's sphere of influence, and Magalia/Upper Ridge. Use County overview and call the official line if the property is in one of those areas or eligibility is uncertain. The reader requires a dated residential posting and recognizes the posted 8:45 AM to one hour before sunset window, conservatively using the earliest county-wide sunset with a five-minute margin. Permit-specific restrictions still apply. Agricultural decisions are not substituted.
+
+**Boundary data:** Existing El Dorado geometry stays embedded. The expanded geometry is in the versioned `boundaries-v9.json` file in this repository. The downloaded widget body validates that file's schema, keys, coordinates and ring closure, then caches it on the device. A valid cached copy works without another map download. If the asset is unavailable or invalid, expanded automatic locations remain unconfirmed; original El Dorado mapping and manual selections remain usable. Daily burn decisions are still fetched fresh. This separation keeps the code below the original loader's 80,000-character limit and does not change the installed updater.
+
+Nevada-state districts remain outside coverage. Do not substitute neighboring county decisions.
+
 
 ## Read the burn status
 
@@ -113,10 +123,15 @@ Placer status codes are matched to the current Pacific date, including posted 8 
 | **Green** | **BURN DAY** | The selected area's official residential decision and its own county's CAL FIRE entry both allow burning within confirmed hours. |
 | **Red** | **NO BURN** | Either source confirms a prohibition. |
 | **White** | **UNCONFIRMED** | The available postings do not confirm a clear status. |
+| **White** | **CALL TO CONFIRM** | Local daily permission or property eligibility requires official confirmation; use the menu to call or open guidance. |
 
 The CAL FIRE entry applies to **State Responsibility Areas (SRA)**. Check the visible date, official postings, applicable permits, and local rules before burning. An unconfirmed result is not permission to burn.
 
 Official sources:
+- [Butte dated residential decisions](https://www.bcaqmd.org/open-burning) and [local eligibility/rules](https://www.bcaqmd.org/outdoor-residential-burning)
+- [Amador official burn information](https://www.amadorcounty.gov/services/amador-air-district/burning-and-burn-permits)
+- [Northern Sierra official burn information](https://www.nsaqmdca.gov/burn-day-status)
+- Other county guidance links and telephone numbers are listed in the source registry.
 - [Placer County burn-day map](https://www.placer.ca.gov/1671/Burn-Days) and its [public data service](https://services9.arcgis.com/NENkjkswKTzMfG3A/arcgis/rest/services/Burn_Day_Status_Public/FeatureServer/0)
 - [Feather River residential burn decisions](https://www.fraqmdca.gov/burn-day-status), with its district-hosted [fallback](https://fraqmd.specialdistrict.org/burn-day-status)
 - [Feather River zone maps](https://www.fraqmdca.gov/burn-zone-information)
@@ -127,6 +142,8 @@ Official sources:
 ## Automatic updates and refresh timing
 
 After installation, the script checks [the public release file](https://raw.githubusercontent.com/mfceosean/donahue-homestead-burn-day/main/Donahue_Burn_Day.js) about every **six hours when iOS runs it**. Most widget updates require no further copying or setup.
+
+**Release 9 (November 6, 2026):** adds Butte residential source handling plus call-to-confirm county guidance for Amador, Calaveras, Tuolumne, Sacramento, Alpine, Nevada, Sierra, Plumas, Yolo and Solano. Automatic county recognition expands to fifteen counties; the new guidance areas are not automated affirmative burn permissions. The selector can call an official line or open the correctly located area's page. Versioned, validated map data is cached separately so the existing installed updater remains unchanged and no reinstall is needed.
 
 **Release 8 (November 6, 2026):** adds all nine official Placer areas and eleven Yuba/Sutter residential zones, with county overviews for the latter. Automatic mode recognizes all four supported counties. Selection is grouped by county, and the title is now **Burn Status**. Daily dates, local bans, posted hours, daylight restrictions, unknown data, and county-specific CAL FIRE status are evaluated separately. The existing loader and saved selections are preserved. The downloaded body remains within the original loader's size limit; no reinstall is needed.
 
@@ -151,7 +168,7 @@ To check the current result manually, open Scriptable and run **Donahue Burn Day
 | **The script is missing from the selection list** | Return to Scriptable, confirm the script is saved with the expected name, run it once, and retry **Edit Widget**. |
 | **Running the script shows a JavaScript error** | Replace the editor contents with the complete raw file. Do not paste the GitHub page, a URL, or only part of the code. Run it again. |
 | **The header says LOCATION UNAVAILABLE or AREA NOT CONFIRMED** | Tap the widget and select a supported county/area manually, or check Scriptable location permission and use Automatic mode. Unsupported counties remain unconfirmed. |
-| **Status is white / UNCONFIRMED** | Check your internet connection and tap through to the official sources. Unavailable, stale, or unexpected source data can produce this result. |
+| **Status is white / UNCONFIRMED or CALL TO CONFIRM** | Check your internet connection and tap through to the official sources. Unavailable, stale, or unexpected source data can produce this result. |
 | **The date or checked time looks old** | Run the script in Scriptable with an internet connection. Give iOS time to refresh the Home Screen widget, and use the official page for an immediate status check. |
 | **A newly published design change has not appeared** | Code checks occur about every six hours when iOS runs the script. Run it again after that interval; if an update check fails, it can retry after about 30 minutes on a later run. |
 | **You want a different size** | Add a new Scriptable widget in the desired size and select the same **Donahue Burn Day** script. Remove the old widget if desired. |
@@ -166,7 +183,7 @@ Updates to the widget body take effect on installed devices at their next update
 
 ## Regression checks
 
-Run `node tests/burn-status.cjs`, `node tests/loader.cjs`, `node tests/selection.cjs`, and `node tests/regional.cjs` with Node.js. The fixtures capture the official November 5/6 county tables and November 6 CAL FIRE entry. Checks cover different daily dates, actual same-day prohibitions, ongoing suspensions, Pacific start-time boundaries, invalid times, and upgrade/cache/fallback execution in all four Scriptable widget sizes. Selection checks cover a single area in every size, differing West Slope/Tahoe decisions, manual persistence and GPS bypass, missing/outside/ambiguous location, source suppression without a selected area, menu actions, and unchanged loader code. Regional checks cover Placer codes and dates, local bans, county-specific CAL FIRE isolation, residential column selection, missing zones, county consensus, burn-hour limits, solar windows, automatic geometry, and the original loader size limit. Drawing and device APIs are mocked; physical iOS rendering and refresh scheduling require device verification.
+Run `node tests/burn-status.cjs`, `node tests/loader.cjs`, `node tests/selection.cjs`, and `node tests/regional.cjs` with Node.js. The fixtures capture the official November 5/6 county tables and November 6 CAL FIRE entry. Checks cover different daily dates, actual same-day prohibitions, ongoing suspensions, Pacific start-time boundaries, invalid times, and upgrade/cache/fallback execution in all four Scriptable widget sizes. Selection checks cover a single area in every size, differing West Slope/Tahoe decisions, manual persistence and GPS bypass, missing/outside/ambiguous location, source suppression without a selected area, menu actions, and unchanged loader code. Boundary-cache tests cover downloads, reuse, corruption, invalid coordinates and offline fallback; contact-mode checks cover county selection, telephone links, and no inferred affirmative permission. Butte checks cover dated residential rows, times and eligibility. Regional checks cover Placer codes and dates, local bans, county-specific CAL FIRE isolation, residential column selection, missing zones, county consensus, burn-hour limits, solar windows, automatic geometry, and the original loader size limit. Drawing and device APIs are mocked; physical iOS rendering and refresh scheduling require device verification.
 
 Created by Donahue Homestead.
 

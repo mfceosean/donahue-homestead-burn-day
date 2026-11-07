@@ -3,14 +3,15 @@ const source=fs.readFileSync(path.join(__dirname,'../Donahue_Burn_Day.js'),'utf8
 const placer=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/placer-2026-11-06.json'),'utf8'));
 const feather=fs.readFileSync(path.join(__dirname,'fixtures/feather-2026-11-06.html'),'utf8');
 const fire=fs.readFileSync(path.join(__dirname,'fixtures/fire-2026-11-06.html'),'utf8');
-const registry=source.slice(source.indexOf('const PLACER_URL'),source.indexOf('const now ='));
+const boundaries=JSON.parse(fs.readFileSync(path.join(__dirname,'../boundaries-v9.json'),'utf8'));
+const registry=source.slice(source.indexOf('const PLACER_URL'),source.indexOf('const now =')).replace('await loadRegionData()','TEST_REGIONS');
 const oldGeometry=source.split('\n').find(l=>l.startsWith('const AREA_BOUNDARIES'));
 const geometryHelpers=source.slice(source.indexOf('function regionForLocation('),source.indexOf('function withTimeout('));
 const helpers=source.slice(source.indexOf('function pacificMinute('),source.lastIndexOf('\n}'));
 let checks=0;
 function api(instant='2026-11-06T20:00:00Z') {
- const ctx=vm.createContext({Intl,console,now:new Date(instant)});
- vm.runInContext(registry+oldGeometry+'\nconst today=dayKey(now);let nextStatusCheck=now.getTime()+1800000;'+geometryHelpers+helpers+'\nglobalThis.api={parsePlacer,parseFeather,parseFire,combineSources,solarWindow,regionForLocation,areaFor,AREAS,refresh:()=>nextStatusCheck};',ctx);
+ const ctx=vm.createContext({Intl,console,TEST_REGIONS:boundaries,now:new Date(instant)});
+ vm.runInContext(registry+oldGeometry+'\nconst today=dayKey(now);let nextStatusCheck=now.getTime()+1800000;'+geometryHelpers+helpers+'\nglobalThis.api={parsePlacer,parseFeather,parseButte,parseFire,combineSources,solarWindow,regionForLocation,areaFor,AREAS,refresh:()=>nextStatusCheck};',ctx);
  return ctx.api;
 }
 function check(actual,expected){assert.deepEqual(JSON.parse(JSON.stringify(actual)),expected);checks++;}
@@ -50,10 +51,23 @@ check(a.parseFire(fire,'Placer'),'UNKNOWN');
 check(a.parseFire(fire.replace(/El Dorado County/g,'Placer County'),'Placer'),'OPEN');
 check(a.parseFire(fire.replace(/El Dorado County/g,'Yuba County').replace('Permit Required','Burning Suspended'),'Yuba'),'SUSPENDED');
 for(const [point,expected] of [
- [[38.7296,-120.7985],'west'],[[38.9399,-119.9772],'tahoe'],[[38.7521,-121.2880],'placer-roseville'],[[38.8916,-121.2930],'placer-lincoln'],[[38.8966,-121.0769],'placer-auburn'],[[39.14,-121.62],'sutter'],[[39.35,-121.2],'yuba'],[[38.58,-121.49],null],[[38.3488,-120.7741],null]
+ [[38.7296,-120.7985],'west'],[[38.9399,-119.9772],'tahoe'],[[38.7521,-121.2880],'placer-roseville'],[[38.8916,-121.2930],'placer-lincoln'],[[38.8966,-121.0769],'placer-auburn'],[[39.14,-121.62],'sutter'],[[39.35,-121.2],'yuba'],[[38.58,-121.49],'sacramento'],[[38.3488,-120.7741],'amador']
 ])check(a.regionForLocation({latitude:point[0],longitude:point[1],horizontalAccuracy:10}),expected);
 check(a.regionForLocation({latitude:39.14,longitude:-121.62,horizontalAccuracy:1500}),null);
 assert(source.length<80000,'Existing loader must accept the larger body');checks++;
 const old=fs.readFileSync(path.join(__dirname,'fixtures/loader-release7.txt'),'utf8');
 assert.equal(source.split('\n// WIDGET_BODY_START\n')[0].replace(/^\/\/ DONAHUE_RELEASE_VERSION: \d+/,'// DONAHUE_RELEASE_VERSION: 7'),old);checks++;
+const butte=fs.readFileSync(path.join(__dirname,'fixtures/butte-2026-11-06.html'),'utf8');
+check(a.parseButte(butte,a.areaFor('butte-rural')).status,'YES');
+check(a.parseButte(butte,a.areaFor('butte')).status,'UNKNOWN');
+check(a.parseButte(butte,a.areaFor('butte')).needsCall,true);
+check(api('2026-11-06T16:44:00Z').parseButte(butte,a.areaFor('butte-rural')).status,'NO');
+check(api('2026-11-06T16:45:00Z').parseButte(butte,a.areaFor('butte-rural')).status,'YES');
+check(api('2026-11-07T04:00:00Z').parseButte(butte,a.areaFor('butte-rural')).status,'UNKNOWN');
+check(a.parseButte(butte.replace('November 06','November 05'),a.areaFor('butte-rural')).status,'UNKNOWN');
+check(a.parseButte(butte.replace('November 06','November 08'),a.areaFor('butte-rural')).status,'UNKNOWN');
+check(a.parseButte(butte.replaceAll('8:45am - 1 hour before sunset','10am to noon'),a.areaFor('butte-rural')).status,'UNKNOWN');
+check(a.parseButte(butte.replaceAll('Residential Burning','Other Burning'),a.areaFor('butte-rural')).status,'UNKNOWN');
+check(a.parseButte(butte.replaceAll('Permissive burn day where burning is allowed.','No burn day.'),a.areaFor('butte')).status,'NO');
+for(const [lat,lon,key] of [[38.3488,-120.7741,'amador'],[38.2,-120.6,'calaveras'],[38.0,-120.2,'tuolumne'],[38.69,-119.78,'alpine'],[39.25,-121.0,'nevada'],[39.6,-120.8,'sierra'],[40.0,-120.9,'plumas'],[38.7,-121.8,'yolo'],[38.25,-121.95,'solano'],[39.7,-121.6,'butte']])check(a.regionForLocation({latitude:lat,longitude:lon,horizontalAccuracy:10}),key);
 console.log(`${checks} regional checks passed: dated sources, county isolation, residential columns, zone consensus, hours/daylight, geometry, loader size/compatibility`);
