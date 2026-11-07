@@ -1,0 +1,83 @@
+// DONAHUE_RELEASE_VERSION: 7
+// Donahue Homestead Burn Day • install this same file in Scriptable and GitHub.
+// Increase the version number above each time you publish changed code.
+// Status still comes directly from the official county and CAL FIRE pages.
+
+const UPDATE_URL = "https://raw.githubusercontent.com/mfceosean/donahue-homestead-burn-day/main/Donahue_Burn_Day.js";
+const UPDATE_EVERY = 6 * 60 * 60 * 1000;
+const RETRY_AFTER = 30 * 60 * 1000;
+const BODY_MARKER = "\n// WIDGET_BODY_START\n";
+const files = FileManager.local();
+const folder = files.joinPath(files.documentsDirectory(), "DonahueBurnDay");
+if (!files.fileExists(folder)) files.createDirectory(folder);
+const cachedPath = files.joinPath(folder, "last-working.js");
+const statePath = files.joinPath(folder, "update-state.json");
+let state = { version: 1, nextCheck: 0 };
+try {
+  if (files.fileExists(statePath)) {
+    const saved = JSON.parse(files.readString(statePath));
+    if (Number.isSafeInteger(saved.version) && saved.version >= 1) state = saved;
+  }
+} catch (e) { console.log("Burn Day state: " + e); }
+if (!files.fileExists(cachedPath)) state.nextCheck = 0;
+let shown = false;
+
+if (Date.now() >= (state.nextCheck || 0)) {
+  try {
+    const req = new Request(UPDATE_URL + "?t=" + Math.floor(Date.now() / UPDATE_EVERY));
+    req.timeoutInterval = 5;
+    req.headers = { "Cache-Control": "no-cache" };
+    const source = await req.loadString();
+    if (!req.response || req.response.statusCode !== 200 ||
+        source.length < 10000 || source.length > 80000) throw new Error("Update unavailable");
+    const remote = parseRelease(source);
+    if (remote.version > state.version) {
+      await runBody(remote.body); // A failed version never replaces the cache.
+      shown = true;
+      files.writeString(cachedPath, source);
+      state.version = remote.version;
+    }
+    state.nextCheck = Date.now() + UPDATE_EVERY;
+  } catch (e) {
+    console.log("Burn Day update check: " + e);
+    state.nextCheck = Date.now() + RETRY_AFTER;
+  }
+  saveState();
+}
+
+if (!shown && files.fileExists(cachedPath)) {
+  try {
+    const cached = parseRelease(files.readString(cachedPath));
+    if (cached.version >= 1) {
+      await runBody(cached.body);
+      shown = true;
+    }
+  } catch (e) {
+    console.log("Burn Day cached version: " + e);
+    state.version = 1;
+    state.nextCheck = 0;
+    saveState();
+  }
+}
+
+if (!shown) await runWidget(); // Built-in release 1 also works offline.
+Script.complete();
+
+function parseRelease(source) {
+  const match = /^\/\/ DONAHUE_RELEASE_VERSION: ([1-9]\d*)\n/.exec(source);
+  const markerAt = source.indexOf(BODY_MARKER);
+  if (!match || markerAt < 0) throw new Error("Invalid update format");
+  const version = Number(match[1]);
+  if (!Number.isSafeInteger(version)) throw new Error("Invalid version");
+  const body = source.slice(markerAt + BODY_MARKER.length);
+  new (Object.getPrototypeOf(async function(){}).constructor)(body + "\nawait runWidget();");
+  return { version, body };
+}
+async function runBody(body) {
+  const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+  await new AsyncFunction(body + "\nawait runWidget();")();
+}
+function saveState() {
+  try { files.writeString(statePath, JSON.stringify(state)); }
+  catch (e) { console.log("Burn Day state write: " + e); }
+}
